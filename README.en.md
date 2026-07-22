@@ -2,7 +2,7 @@
 
 > [中文](README.md)
 
-erikwang2013/industrial-protocols-bacnet — 纯 PHP implementation, category: Industrial Ethernet / Building Automation.
+BACnet/IP 协议包 — 支持 Who-Is/I-Am 设备发现和 ReadProperty，UDP 通信。Pure PHP implementation, compatible with 6 PHP runtimes via kernel framework adapters.
 
 ## Installation
 
@@ -10,33 +10,64 @@ erikwang2013/industrial-protocols-bacnet — 纯 PHP implementation, category: I
 composer require erikwang2013/industrial-protocols-kernel erikwang2013/industrial-protocols-bacnet
 ```
 
-> This package depends on [erikwang2013/industrial-protocols-kernel](https://github.com/erikwang2013/industrial-protocols), which provides connection management, protocol registry, coroutine adaptation, event system and more.
+> Depends on [erikwang2013/industrial-protocols-kernel](https://github.com/erikwang2013/industrial-protocols-kernel) for connection management, protocol registry, coroutine adaptation, event system and more.
+
+## Architecture
+
+Built on kernel SDK interfaces (ProtocolInterface/ConnectorInterface/DriverInterface/FrameInterface), with BacnetDriver for transport and BacnetConnector for unified ConnectorInterface.
+
+## Features
+
+Complete bacnet protocol frame encode/decode, driver transport, Connector wrapper, health check, connection strategies (Lazy/Eager/Pooled)
+
+## Supported Frameworks
+
+Compatible with 6 PHP runtimes via kernel framework adapters: Laravel (ServiceProvider+Facade+artisan), Webman (config/plugin auto-discovery+ProtocolProcess), Hyperf (ConfigProvider+DI+KernelFactory), ThinkPHP (services.php+IndustrialProtocolsService), Yii2 (Bootstrap+component), Plain PHP (direct Kernel instantiation)
+
+### Laravel
+
+```php
+// AppServiceProvider::boot()
+$kernel = app(Kernel::class);
+$kernel->getProtocolRegistry()->register(new ModbusProtocol());
+$kernel->boot();
+$conn = $kernel->getConnectionManager()->connect('device-id');
+```
+
+### Webman
+
+Auto-boot via ProtocolProcess on worker start. Configure at `config/plugin/erikwang2013/industrial-protocols-kernel/config/industrial-protocols.php`.
+
+### Hyperf
+
+```php
+$kernel = \Hyperf\Context\ApplicationContext::getContainer()->get(Kernel::class);
+```
 
 ## Usage
 
 ```php
-use Erikwang2013\IndustrialProtocols\Kernel;
-$kernel = new Kernel(['config_path' => __DIR__ . '/industrial-protocols.php']);
-$kernel->boot();
-
-// Connect via ConnectionManager
-$conn = $kernel->getConnectionManager()->connect('device-id');
-$result = $conn->read('address');
+$conn = $kernel->getConnectionManager()->connect('bacnet-device');
+$devices = $conn->discoverDevices(5);       // Who-Is broadcast
+$result  = $conn->read('0:1:85');           // ObjectType:Instance:PropertyId
 ```
 
-> This package depends on [erikwang2013/industrial-protocols-kernel](https://github.com/erikwang2013/industrial-protocols), which provides connection management, protocol registry, coroutine adaptation, event system and more.
+## Configuration
 
-## Features
+```php
+'devices' => [
+    'device-id' => [
+        'protocol' => 'bacnet',
+        'host'     => '192.168.1.10',
+        'port'     => 47808,
+        'timeout'  => 3000,
+    ],
+],
+```
 
-Who-Is/I-Am 设备发现、ReadProperty 读取属性、BVLC/NPDU 帧编解码、UDP 通信
+## Adapter Vendors
 
-## Architecture
-
-UDP Socket + BVLC 帧封装 + NPDU 网络层，实现 6 个 SDK 接口
-
-## Protocol Support
-
-BACnet/IP (端口 47808)
+Hilscher (netX), HMS/Anybus (BACnet Gateway), Moxa (MGate 5217 BACnet Gateway)
 
 ## Requirements
 
@@ -44,16 +75,12 @@ BACnet/IP (端口 47808)
 - Composer
 - erikwang2013/industrial-protocols-kernel
 
-## License
-
-MIT — Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-
-
----
-
 ## Related Links
 
 - [Industrial Protocols Main Project](https://github.com/erikwang2013/industrial-protocols)
 - [Kernel](https://github.com/erikwang2013/industrial-protocols-kernel)
 - [All 42 Protocol Packages](https://github.com/erikwang2013/industrial-protocols#supported-protocols)
 
+## License
+
+MIT — Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
