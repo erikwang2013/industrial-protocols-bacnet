@@ -71,4 +71,10 @@ class BacnetDriver implements DriverInterface
     {
         return false;
     }
+
+    /** @return resource|null */
+    public function getSocket()
+    {
+        return $this->socket;
+    }
 }

@@ -78,7 +78,7 @@ class BacnetConnector implements ConnectorInterface
         $devices = [];
         $deadline = time() + $timeoutSec;
         while (time() < $deadline) {
-            $response = @fread($this->driver->socket ?? STDIN, 4096);
+            $response = @fread($this->driver->getSocket(), 4096);
             if ($response !== false && $response !== '') {
                 $frame = BacnetFrame::fromBytes($response);
                 $devices[] = $frame->getData();
