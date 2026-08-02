@@ -43,12 +43,12 @@ class BacnetConnector implements ConnectorInterface
     {
         $results = [];
         $addresses = is_array($points) ? $points : [$points];
+        $deviceId = (int)($this->config['device_id'] ?? 1);
         foreach ($addresses as $addr) {
             $parts = explode(':', $addr);
             $objType = (int)($parts[0] ?? 0);
             $objInst = (int)($parts[1] ?? 0);
             $propId  = (int)($parts[2] ?? 85); // default: present-value
-            $deviceId = (int)($this->config['device_id'] ?? 1);
 
             $request = BacnetFrame::readProperty($deviceId, $objType, $objInst, $propId);
             $response = $this->driver->send($request);
