@@ -40,7 +40,7 @@ $result = $conn->read('0:1:85');       // AnalogInput 1, PresentValue
 
 ## 兼容框架
 
-Laravel / Webman / Hyperf / ThinkPHP / Yii2 / Plain PHP
+Laravel / Webman / Hyperf / ThinkPHP / Yii2 / Yii3 / Plain PHP
 
 ## 系统要求
 
