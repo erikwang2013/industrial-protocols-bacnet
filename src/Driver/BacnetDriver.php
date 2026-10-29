@@ -22,7 +22,7 @@ class BacnetDriver implements DriverInterface
 
     public function connect(): void
     {
-        $this->socket = stream_socket_client("udp://{$this->host}:{$this->port}", $errno, $errstr, $this->timeout);
+        $this->socket = @stream_socket_client("udp://{$this->host}:{$this->port}", $errno, $errstr, $this->timeout);
         if (!$this->socket) {
             throw new \RuntimeException("BACnet connect failed: [$errno] $errstr");
         }
